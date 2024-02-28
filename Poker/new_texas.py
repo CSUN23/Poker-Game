@@ -633,7 +633,6 @@ class PokerGameGUI:
 
             self.number_entry.destroy()
             self.submit_button.destroy() #player 1 keep changing deck
-            self.player_turn_label.pack_forget()
 
             game.decision_cycle(self.raise_amount)
             self.update_bets_and_pot()
@@ -644,7 +643,6 @@ class PokerGameGUI:
                 self.root.wait_variable(self.submitted_flag)
             self.number_entry.destroy()
             self.submit_button.destroy()
-            self.player_turn_label.pack_forget()
             print(game.current_player_index)
             
             game.betting_round(self.raise_amount)
@@ -657,7 +655,6 @@ class PokerGameGUI:
 
             self.number_entry.destroy()
             self.submit_button.destroy()
-            self.player_turn_label.pack_forget()
 
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
@@ -668,7 +665,6 @@ class PokerGameGUI:
 
             self.number_entry.destroy()
             self.submit_button.destroy()
-            self.player_turn_label.pack_forget()
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
@@ -679,7 +675,6 @@ class PokerGameGUI:
 
             self.number_entry.destroy()
             self.submit_button.destroy()
-            self.player_turn_label.pack_forget()
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
