@@ -256,9 +256,6 @@ class PokerGame:
         gui.set_submitted_flag(0)
 
         while len(active_players) >= 2:
-
-            
-
             current_player = self.players[self.current_player_index]  
             max_bet = max(player['bet'] for player in self.players)
 
@@ -314,11 +311,8 @@ class PokerGame:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
-            gui.set_round(5)
-            gui.end_round()
-            current_player['decision'] = None
-            self.current_player_index = 0
-            gui.restart_game()
+            gui.set_round(6)
+            
 
 
     def first_bet(self):
@@ -376,9 +370,6 @@ class PokerGame:
                 gui.set_submitted_flag(0)
                 if gui.get_round()==5:
                     gui.set_round(6)
-                    gui.end_round()
-                    self.current_player_index = 0
-                    gui.restart_game()
                 else:
                     self.deal_community_cards(1)
                     gui.update_community_cards_display()
@@ -400,11 +391,7 @@ class PokerGame:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
-            gui.set_round(5)
-            gui.end_round()
-            current_player['decision'] = None
-            self.current_player_index = 0
-            gui.restart_game()
+            gui.set_round(6)
 
 class PokerGameGUI:
     SUIT_MAPPING = {
@@ -439,11 +426,12 @@ class PokerGameGUI:
         self.card_images = self.load_card_images()
         
         self.setup_gui()
-        
+        self.winner_label.pack()
         self.game.first_bet()
         self.update_bets_and_pot()
         self.deal_initial_cards()
         self.update_hand_display()
+        
 
     def set_round(self, value):
         self.round = value
@@ -466,6 +454,7 @@ class PokerGameGUI:
 
 
     def restart_game(self):
+        
         result = messagebox.askyesno("Restart Game", "Do you want to restart the game?")
         if result:
             self.set_round(1)
@@ -511,14 +500,15 @@ class PokerGameGUI:
         self.disable_user_interaction()
 
         winner = game.determine_winner()
+        self.winner_label.config(text=f'{winner[0]}')
+        print(winner[0], winner[1])
 
         if game.get_tie_flag()==1:
-            self.winner_label = tk.Label(self.root, text=f"Tie between {winner[0]} with {winner[1]}")
-            self.winner_label.place(x=640, y=850) 
+            self.winner_label.config(text=f"Tie between {winner[0]} with {winner[1]}")#place(x=640, y=850) 
             game.set_tie_flag(0)
         else:
-            self.winner_label = tk.Label(self.root, text=f"Winner: {winner[0]} with {winner[1]}")
-            self.winner_label.place(x=640, y=850) 
+            self.winner_label.config(text=f"Winner: {winner[0]} with {winner[1]}")#place(x=640, y=850) 
+        self.root.update()
 
     def process_input(self):
         try:
@@ -576,7 +566,7 @@ class PokerGameGUI:
         # self.dealer_hand_label = tk.Label(self.root, text="")
         # self.player2_bet_label = tk.Label(self.root,text="")
         # self.player2_money_label = tk.Label(self.root,text="")
-        # self.result_label = tk.Label(self.root, text="")
+        self.result_label = tk.Label(self.root, text="")
         self.add_player_dialog()
         self.player_hand_label = tk.Label(self.root,text="")
         self.player_bet_label = tk.Label(self.root, text="")
@@ -594,6 +584,7 @@ class PokerGameGUI:
         self.raise_button.config(state=tk.DISABLED)
 
         self.player_hand_label.pack()
+        self.player_bet_label.pack()
         self.player_money_label.pack()
         self.player_tokens_frame = tk.Frame(self.root)
         self.player_tokens_frame.pack()
@@ -613,10 +604,10 @@ class PokerGameGUI:
     
     def update_bets_and_pot(self):
         # Update the text of the labels with the current bet and pot values
-        self.player_bet_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Bet: ${game.get_bet('Player1')}") 
-        self.player_money_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Money: ${game.get_money('Player1')}")
+        self.player_bet_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Bet: ${game.get_bet(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])}") 
+
+        self.player_money_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Money: ${game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])}")
         self.pot_label.config(text=f"Pot: ${game.get_pot()}")
-        # self.player_turn_label = tk.Label(self.root,text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s turn")
         self.player_turn_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s turn")
 
     def Fold(self):
@@ -700,6 +691,11 @@ class PokerGameGUI:
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
             self.update_bets_and_pot()
+        else:
+            gui.end_round()
+            game.get_player_by_name(game.get_active_players()[game.current_player_index])['decision'] = None
+            self.current_player_index = 0
+            gui.restart_game()
 
 
     def Call(self):
