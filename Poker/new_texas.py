@@ -421,7 +421,8 @@ class PokerGameGUI:
         self.action = ""
         self.winner_label = tk.Label(self.root)
         self.player_turn_label = tk.Label(self.root,text="") 
-
+        self.player_turn_label.pack()
+        
         # Initialize the Entry and Button widgets
         self.number_entry = tk.Entry(self.root, width=10)
         self.number_entry.pack_forget()
@@ -595,8 +596,8 @@ class PokerGameGUI:
         self.player_bet_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Bet: ${game.get_bet('Player1')}") 
         self.player_money_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s Money: ${game.get_money('Player1')}")
         self.pot_label.config(text=f"Pot: ${game.get_pot()}")
-        self.player_turn_label = tk.Label(self.root,text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s turn")
-        self.player_turn_label.place(x=690,y=0)
+        # self.player_turn_label = tk.Label(self.root,text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s turn")
+        self.player_turn_label.config(text=f"{game.get_player_by_name(game.get_active_players()[game.current_player_index])['name']}'s turn")
 
     def Fold(self):
         self.action = 'fold'
