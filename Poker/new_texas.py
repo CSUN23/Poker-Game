@@ -560,6 +560,7 @@ class PokerGameGUI:
         self.player_hand_label = tk.Label(self.root,text="")
         self.player_bet_label = tk.Label(self.root, text="")
         self.player_money_label = tk.Label(self.root, text="")
+        # self.player_money_token_label = tk.Label(self.root, text="")
         self.community_cards_label = tk.Label(self.root, text="")
         self.pot_label = tk.Label(self.root, text="")
 
@@ -573,6 +574,8 @@ class PokerGameGUI:
 
         self.player_hand_label.pack()
         self.player_money_label.pack()
+        self.player_tokens_frame = tk.Frame(self.root)
+        self.player_tokens_frame.pack()
         self.player_hand_frame = tk.Frame(self.root) #frames to hold card images
         self.player_hand_frame.pack()
         self.community_cards_label.pack()
@@ -749,6 +752,10 @@ class PokerGameGUI:
         for card in self.game.community_cards:
             suit_name = self.SUIT_MAPPING.get(card._suit, card._suit)
             tk.Label(self.community_frame, image=self.card_images[f"{card._face}_of_{suit_name}"]).pack(side=tk.LEFT)
+    
+    def update_tokens_display(self): 
+        for element in self.player_tokens_frame.winfo_children():
+            element.destroy()
         
     def deal_initial_cards(self):
         for player in self.game.players: 
