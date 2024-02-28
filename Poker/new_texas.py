@@ -3,6 +3,7 @@ from collections import Counter
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from tkinter import simpledialog
 import os
 
 class Card:
@@ -50,6 +51,8 @@ class Deck:
 
         drawn_indices = random.sample(range(len(self._deck)), num_cards)
         drawn_cards = [self._deck.pop(i) for i in sorted(drawn_indices, reverse=True)]
+        print(drawn_indices)
+        print(game.get_active_players())
 
         return drawn_cards
 
@@ -169,9 +172,8 @@ class PokerGame:
         else:
             return "High Card", max(values) 
 
-    def deal_hands(self, num_cards=2):
-        for player in self.players:
-            player['hand'] = self.deck.draw_cards(num_cards)
+    def deal_hands(self, player, num_cards=2):
+        player['hand'] = self.deck.draw_cards(num_cards)
 
     def deal_community_cards(self, num_cards):
         revealed_cards = self.deck.draw_cards(num_cards)
@@ -445,6 +447,23 @@ class PokerGameGUI:
 
     def set_round(self, value):
         self.round = value
+    
+    def add_player_dialog(self):
+        while True:
+            try:
+                num_players = simpledialog.askinteger("Input", "Enter total number of players:")
+                if num_players == 2:
+                    break
+                elif 3 <= num_players <= 9:
+                    for i in range(3, num_players + 1):
+                        self.game.add_player('Player' + str(i))
+                    break  
+                else:
+                    messagebox.showinfo('Invalid number of players. Must be between 2 and 5.','Invalid number of players. Must be between 2 and 9.')
+                print(len(game.get_active_players))
+            except:
+                messagebox.showinfo('Invalid input','Invalid input')
+
 
     def restart_game(self):
         result = messagebox.askyesno("Restart Game", "Do you want to restart the game?")
@@ -558,6 +577,7 @@ class PokerGameGUI:
         # self.player2_bet_label = tk.Label(self.root,text="")
         # self.player2_money_label = tk.Label(self.root,text="")
         # self.result_label = tk.Label(self.root, text="")
+        self.add_player_dialog()
         self.player_hand_label = tk.Label(self.root,text="")
         self.player_bet_label = tk.Label(self.root, text="")
         self.player_money_label = tk.Label(self.root, text="")
@@ -754,8 +774,8 @@ class PokerGameGUI:
             element.destroy()
         
     def deal_initial_cards(self):
-        for player in self.game.players: 
-            self.game.deal_hands()
+        for player in game.players: 
+            self.game.deal_hands(player,num_cards=2)
 
 if __name__ == "__main__":
     game = PokerGame()
