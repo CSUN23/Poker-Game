@@ -180,33 +180,74 @@ class PokerGame:
         self.community_cards.extend(revealed_cards)
 
     def determine_winner(self):
+        SUITS_RANKING = ["♠","♥","♦","♣"]
         active_players = [player for player in self.players if player['money'] > 0 and player['decision']!='fold'] 
         best_hands = [(player['name'], self.evaluate_hand(player['hand'], self.community_cards)) for player in active_players]
+        best_hands.sort(key=lambda x: (self.HAND_RANKINGS.index(x[1][0]), x[0]))
         tied_players = [player for player in best_hands if player[1][0] == best_hands[0][1][0]]
-
-        if len(tied_players)<2:
-            best_hands.sort(key=lambda x: (self.HAND_RANKINGS.index(x[1][0]), x[0]))
 
         if len(tied_players) > 1:  # There is a tie
             # Compare high cards
             values = []
             suits = []
+            tied_array = []
+            
+            i = 0
             for player in active_players:
-                values.append([card.__int__() for card in player['hand']])
-                suits.append([card._suit for card in player['hand']])
+                for t in tied_players:
+                    if t[0] == player['name']:
+                        tied_array.append(t)
+                        values.append([card.__int__() for card in player['hand']])
+                        suits.append([card._suit for card in player['hand']])
 
             i = 0
             for pair in values:
-                if max(pair) != min(pair):
-                        suits[i].remove(suits[i][pair.index(min(pair))])
-                        pair.remove(min(pair))
+                suits[i].remove(suits[i][pair.index(min(pair))])
+                pair.remove(min(pair))
                 i+=1
 
             high_cards_values = values
-  
+            
+            new_values = []
+            for arr in values:
+                for val in arr:
+                    new_values.append(val)
+
+            count_dict = Counter(new_values)
+            tied_index = []
+            for num, count in count_dict.items():
+                if count > 1 and num==max(new_values): # tied inside high cards
+                    max_value = max(new_values)
+                    for i in range(len(values)):
+                        if values[i][0] == max_value:    
+                            tied_index.append(i)
+                    
+                    updated_suits = sorted(suits, key=lambda x: SUITS_RANKING.index(x[0]))
+                    original_indice = [i for i, suit in enumerate(suits) if updated_suits[0][0]==suit[0]]
+                    player_name = tied_array[tied_index[original_indice[0]]][0]
+                    hand_type =  suits[tied_index[original_indice[0]]][0] #suit[0][0]
+                    hand_values = values[tied_index[original_indice[0]]][0] #values[0][0]
+                    winner = (player_name, (hand_type, hand_values))
+                    self.get_player_by_name(player_name)['money'] += self.get_pot()
+                    return winner
+
+            if len(values) >2:
+                max_value = max(values)
+                tied_index = []
+                for i in range(len(values)):
+                    if values[i] == max_value:
+                        winner = tied_players[high_cards_values.index(max(high_cards_values))]
+                        tied_index.append(values.index(values[i]))   
+                        player_name = tied_array[tied_index[0]][0]
+                        hand_type = values[tied_index[0]][0]
+                        hand_values = suits[tied_index[0]][0]
+                        winner = (player_name, (hand_type, hand_values))
+                        self.get_player_by_name(player_name)['money'] += self.get_pot()
+
+                        return winner
 
             if values[0]>values[1]:  
-                winner_info = tied_players[0]
+                winner_info = tied_array[0]
                 player_name = winner_info[0]
 
                 hand_type = suits[0][0]
@@ -218,7 +259,7 @@ class PokerGame:
 
                 return winner
             elif values[1]>values[0]:
-                winner_info = tied_players[1]
+                winner_info = tied_array[1]
                 player_name = winner_info[0]
                 hand_type = suits[1][0]
                 hand_values = values[1][0]
