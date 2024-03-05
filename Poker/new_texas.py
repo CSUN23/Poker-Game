@@ -465,6 +465,7 @@ class PokerGameGUI:
         self.hold_flag = tk.IntVar(self.root,value=0)
 
         self.card_images = self.load_card_images()
+        self.token_images = self.load_token_images()
         
         self.setup_gui()
         self.winner_label.pack()
@@ -472,6 +473,7 @@ class PokerGameGUI:
         self.update_bets_and_pot()
         self.deal_initial_cards()
         self.update_hand_display()
+        self.update_tokens_display()
         
 
     def set_round(self, value):
@@ -596,6 +598,24 @@ class PokerGameGUI:
         self.card_images = card_images
 
         return card_images
+    
+    def load_token_images(self):
+        token_images = {}
+        for value in ['5', '10', '50', '100', '500', '1000']:
+            filename = f'{value}.png'  
+            # path = os.path.join('/Users/chloesun/Downloads/playing-cards-master', filename)
+            path = os.path.join(os.path.dirname(__file__), 'chips-pics', filename)
+            image = Image.open(path)
+            image = image.resize((120, 120), Image.LANCZOS)
+
+            photo = ImageTk.PhotoImage(image)
+            card_key = f"{value}"
+            token_images[card_key] = photo  
+
+        # Store card_images at the class level
+        self.token_images = token_images
+
+        return token_images
     
     def setup_gui(self):
         # Create GUI features
@@ -809,6 +829,34 @@ class PokerGameGUI:
     def update_tokens_display(self): 
         for element in self.player_tokens_frame.winfo_children():
             element.destroy()
+        
+        total = game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])
+        
+        money = {'1000':0, '500':0, '100':0, '50':0, '10':0, '5':0}
+        
+        if total/1000 >= 1: 
+            money['1000'] = int(total/1000)
+            total = total % 1000
+        if total/500 >= 1: 
+            money['500'] = int(total/500)
+            total = total % 500
+        if total/100 >= 1:
+            money['100'] = int(total/100)
+            total = total % 100
+        if total/50 >= 1:
+            money['50'] = int(total/50)
+            total = total % 50
+        if total/10 >= 1:
+            money['10'] = int(total/10)
+            total = total % 10
+        if total/5 >= 1:
+            money['5'] = int(total/5)
+            total = total % 5
+        
+        for key in money:
+            for _ in range(money[key]):
+                tk.Label(self.community_frame, image=self.token_images[f"{key}"]).pack(side=tk.LEFT)
+        # tk.Label(self.player_tokens_frame, image=self.token_images[f"5"]).pack(side=tk.LEFT)
         
     def deal_initial_cards(self):
         for player in game.players: 
