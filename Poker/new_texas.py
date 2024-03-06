@@ -75,11 +75,11 @@ class PokerGame:
         self.raise_amount = 0
         self.current_player_index = 0
         self.small_blind_player = 'Player1'
-        self.total_raise_amount = 0
+        self.total_raise_amount = 20
         self.tie_flag = 0
 
     def add_player(self, player_name):
-        self.players.append({'name': player_name, 'hand': [], 'money': 5000, 'decision': None, 'bet': 20})
+        self.players.append({'name': player_name, 'hand': [], 'money': 5000, 'decision': None, 'bet': 0})
     
     def get_active_players(self):
         return [player['name'] for player in self.players if player['money'] > 0 and player['decision']!='fold']
@@ -301,6 +301,8 @@ class PokerGame:
             max_bet = max(player['bet'] for player in self.players)
 
             print(f"{current_player['name']}'s hand: {current_player['hand']}")
+            print(current_player['money'])
+            print('before', self.players)
      
             current_player['decision'], current_player['bet'] = self.get_player_decision()
             print(current_player['name'], 'start', current_player['decision'])
@@ -311,6 +313,8 @@ class PokerGame:
             elif current_player['decision'] == 'call':
                 self.pot += abs(self.total_raise_amount - current_player['bet'])
                 current_player['money'] -= abs(self.total_raise_amount - current_player['bet'])
+                print(self.total_raise_amount, current_player['bet'])
+                print(max_bet)
                 current_player['bet'] = max_bet
             elif current_player['decision'] == 'raise':
                 self.total_raise_amount += raise_amount  # Update the total raise amount
@@ -318,11 +322,15 @@ class PokerGame:
                 self.pot += current_player['bet']
                 current_player['money'] -= current_player['bet']
             elif current_player['decision'] == 'hold':
-                while current_player['bet'] == 10:
-                    current_player['decision'], current_player['bet'] = self.get_player_decision()
-                    current_player['bet'] = 20
-                    break
-                current_player['money']-=current_player['bet']
+                # while current_player['bet'] == 10:
+                #     current_player['decision'], current_player['bet'] = self.get_player_decision()
+                #     current_player['bet'] = 20
+                #     break
+                # current_player['money']-=current_player['bet']
+                pass
+            
+            print(current_player['money'])
+            print('after', self.players)
                
             max_bet = max(player['bet'] for player in active_players)
             if all(player['bet'] == max_bet for player in active_players) and self.get_index()+1==len(active_players):
@@ -335,9 +343,9 @@ class PokerGame:
                     player['bet'] = 0
                 break
             
-            if all(player['bet'] == max_bet for player in active_players):
-                for player in active_players:
-                    player['bet'] = 0
+            # if all(player['bet'] == max_bet for player in active_players):
+            #     for player in active_players:
+            #         player['bet'] = 0
  
             if self.current_player_index+1 == len(active_players):
                 self.current_player_index = 0
@@ -364,18 +372,21 @@ class PokerGame:
         big_blind_amount = 20
         self.current_highest_bet = big_blind_amount
 
+        print('here', self.players)
         # Set small blind player (Player1)
         self.players[0]['bet'] = small_blind_amount
         self.current_highest_bet = small_blind_amount
 
         # Set big blind player (Player2)
-        self.players[1]['bet'] = big_blind_amount
+        self.players[-1]['bet'] = big_blind_amount
         self.current_highest_bet = big_blind_amount
+        print('there', self.players)
 
         # Display initial pot
         self.pot = small_blind_amount + big_blind_amount
         self.get_player_by_name('Player1')['money']-=small_blind_amount
-        self.get_player_by_name('Player2')['money']-=big_blind_amount
+        self.players[-1]['money'] -= big_blind_amount
+        #self.get_player_by_name('Player'+ str(len(self.players)-1))['money']-=big_blind_amount
 
     # game and betting logic for after community cards are distributed
     def betting_round(self, raise_amount):
