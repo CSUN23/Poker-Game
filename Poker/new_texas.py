@@ -522,6 +522,7 @@ class PokerGameGUI:
             game.first_bet()
             
             self.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
             
             messagebox.showinfo("Game Restarted", "The game has been restarted.")
@@ -722,6 +723,7 @@ class PokerGameGUI:
             self.update_bets_and_pot()
             if self.round!=5:
                 self.update_hand_display()
+                self.update_tokens_display()
         elif self.round==2:
             if self.get_submitted_flag() == 0:
                 self.root.wait_variable(self.submitted_flag)
@@ -731,6 +733,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             self.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
             
         elif self.round==3:
@@ -742,6 +745,7 @@ class PokerGameGUI:
 
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==4:
             if self.get_submitted_flag() == 0:
@@ -752,6 +756,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==5:
             if self.get_submitted_flag() == 0:
@@ -762,6 +767,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         else:
             gui.end_round()
@@ -864,9 +870,12 @@ class PokerGameGUI:
             money['5'] = int(total/5)
             total = total % 5
         
-        for key in money:
-            for _ in range(money[key]):
-                tk.Label(self.community_frame, image=self.token_images[f"{key}"]).pack(side=tk.LEFT)
+        for i, (key, value) in enumerate(money.items(), start = 1):
+            for j in range(value):
+                token_width = token_height = 120
+                y_pos = j * token_height
+                print(self.token_images[f"{key}"])
+                tk.Label(self.player_tokens_frame, image=self.token_images[f"{key}"]).place(x=i*token_width, y=y_pos)
         # tk.Label(self.player_tokens_frame, image=self.token_images[f"5"]).pack(side=tk.LEFT)
         
     def deal_initial_cards(self):
