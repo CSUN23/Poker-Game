@@ -79,7 +79,7 @@ class PokerGame:
         self.tie_flag = 0
 
     def add_player(self, player_name):
-        self.players.append({'name': player_name, 'hand': [], 'money': 5000, 'decision': None, 'bet': 0})
+        self.players.append({'name': player_name, 'hand': [], 'money': 500, 'decision': None, 'bet': 0})
     
     def get_active_players(self):
         return [player['name'] for player in self.players if player['money'] > 0 and player['decision']!='fold']
@@ -522,7 +522,6 @@ class PokerGameGUI:
             game.first_bet()
             
             self.update_hand_display()
-            self.update_tokens_display()
             self.update_bets_and_pot()
             
             messagebox.showinfo("Game Restarted", "The game has been restarted.")
@@ -723,7 +722,6 @@ class PokerGameGUI:
             self.update_bets_and_pot()
             if self.round!=5:
                 self.update_hand_display()
-                self.update_tokens_display()
         elif self.round==2:
             if self.get_submitted_flag() == 0:
                 self.root.wait_variable(self.submitted_flag)
@@ -733,7 +731,6 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             self.update_hand_display()
-            self.update_tokens_display()
             self.update_bets_and_pot()
             
         elif self.round==3:
@@ -745,7 +742,6 @@ class PokerGameGUI:
 
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
-            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==4:
             if self.get_submitted_flag() == 0:
@@ -756,7 +752,6 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
-            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==5:
             if self.get_submitted_flag() == 0:
@@ -767,7 +762,6 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
-            self.update_tokens_display()
             self.update_bets_and_pot()
         else:
             gui.end_round()
@@ -842,15 +836,20 @@ class PokerGameGUI:
         for card in self.game.community_cards:
             suit_name = self.SUIT_MAPPING.get(card._suit, card._suit)
             tk.Label(self.community_frame, image=self.card_images[f"{card._face}_of_{suit_name}"]).pack(side=tk.LEFT)
-    
-    def update_tokens_display(self): 
+
+    def get_coordinates(self, widget):
+        x = widget.winfo_x()
+        y = widget.winfo_y()
+        return x, y
+
+    def update_tokens_display(self):
         for element in self.player_tokens_frame.winfo_children():
             element.destroy()
-        
+
         total = game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])
-        
-        money = {'1000':0, '500':0, '100':0, '50':0, '10':0, '5':0}
-        
+
+        money = {'1000': 0, '500': 0, '100': 0, '50': 0, '10': 0, '5': 0}
+
         if total/1000 >= 1: 
             money['1000'] = int(total/1000)
             total = total % 1000
@@ -869,15 +868,41 @@ class PokerGameGUI:
         if total/5 >= 1:
             money['5'] = int(total/5)
             total = total % 5
-        
-        for i, (key, value) in enumerate(money.items(), start = 1):
-            for j in range(value):
-                token_width = token_height = 120
-                y_pos = j * token_height
-                print(self.token_images[f"{key}"])
-                tk.Label(self.player_tokens_frame, image=self.token_images[f"{key}"]).place(x=i*token_width, y=y_pos)
-        # tk.Label(self.player_tokens_frame, image=self.token_images[f"5"]).pack(side=tk.LEFT)
-        
+
+        token_width = 120
+        token_height = 120
+        offset_y = 0.7  # Adjust this offset for better stacking effect
+
+        parent_x, parent_y = self.player_tokens_frame.winfo_rootx(), self.player_tokens_frame.winfo_rooty()
+        x_offset = parent_x - 300  # Adjust this value to position the tokens horizontally
+        y_offset = parent_y + 10  # Adjust this value to position the tokens vertically
+
+        for key, value in money.items():
+            y_pos = y_offset
+            for i in range(value):
+                img = self.token_images.get(f"{key}")
+                filename = f'{key}.png'  
+                path = os.path.join(os.path.dirname(__file__), 'chips-pics', filename)
+                original_image = Image.open(path)
+                image_with_alpha = original_image.convert("RGBA")
+
+                # Example: Make 50% of the image transparent (adjust as needed)
+                alpha_value = int(0.1 * 255)
+                transparent_image = Image.new("RGBA", image_with_alpha.size, (255, 255, 255, alpha_value))
+                transparent_image.paste(image_with_alpha, (0, 0), image_with_alpha)
+
+                tk_image = ImageTk.PhotoImage(transparent_image)
+                label = tk.Label(self.player_tokens_frame, image=tk_image, bg='systemTransparent',anchor='nw')
+                print(tk_image)
+            
+                if img:   
+                    self.player_tokens_frame.create_image(x_offset, y_pos, anchor='nw', image=img)
+                    #label = tk.Label(self.root, image=img, bg='systemTransparent', anchor='nw')
+                    # label.image = img
+                    # label.place(x=x_offset, y=y_pos)
+                    y_pos += token_height - (offset_y * token_height)
+            x_offset += token_width + 10
+
     def deal_initial_cards(self):
         for player in game.players: 
             self.game.deal_hands(player,num_cards=2)
