@@ -896,10 +896,10 @@ class PokerGameGUI:
                 print(tk_image)
             
                 if img:   
-                    self.player_tokens_frame.create_image(x_offset, y_pos, anchor='nw', image=img)
-                    #label = tk.Label(self.root, image=img, bg='systemTransparent', anchor='nw')
-                    # label.image = img
-                    # label.place(x=x_offset, y=y_pos)
+                    # self.player_tokens_frame.create_image(x_offset, y_pos, anchor='nw', image=img)
+                    label = tk.Label(self.root, image=img, bg='systemTransparent', anchor='nw')
+                    label.image = img
+                    label.place(x=x_offset, y=y_pos)
                     y_pos += token_height - (offset_y * token_height)
             x_offset += token_width + 10
 
