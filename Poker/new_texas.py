@@ -301,8 +301,6 @@ class PokerGame:
             max_bet = max(player['bet'] for player in self.players)
 
             print(f"{current_player['name']}'s hand: {current_player['hand']}")
-            print(current_player['money'])
-            print('before', self.players)
      
             current_player['decision'], current_player['bet'] = self.get_player_decision()
             print(current_player['name'], 'start', current_player['decision'])
@@ -328,10 +326,7 @@ class PokerGame:
                 #     break
                 # current_player['money']-=current_player['bet']
                 pass
-            
-            print(current_player['money'])
-            print('after', self.players)
-               
+                           
             max_bet = max(player['bet'] for player in active_players)
             if all(player['bet'] == max_bet for player in active_players) and self.get_index()+1==len(active_players):
                 gui.increment_round()
@@ -855,6 +850,7 @@ class PokerGameGUI:
         self.canvas.delete("all")        
 
         total = game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])
+        print('check here', total)
 
         money = {'1000': 0, '500': 0, '100': 0, '50': 0, '10': 0, '5': 0}
 
@@ -881,22 +877,28 @@ class PokerGameGUI:
         token_height = 120
 
         parent_x = parent_y = 0
-        x_offset = parent_x - 250  # Adjust this value to position the tokens horizontally
+        x_offset = parent_x # Adjust this value to position the tokens horizontally
         y_offset = parent_y - 0  # Adjust this value to position the tokens vertically
-        print("parent_x, parent_y", parent_x, parent_y)
-        print("x_offset, y_offset", x_offset, y_offset)
 
         for key, value in money.items():
-            y_pos = y_offset
-            x_pos = x_offset
-            for i in range(value):
-                img = self.token_images.get(f"{key}")            
-                if img:   
+            if value!=0:
+                y_pos = y_offset # 0
+                x_pos = x_offset # -260
+                print(x_pos, y_pos)
+                print('val',value) 
+                
+                for i in range(value):
+                    img = self.token_images.get(f"{key}")  
+                    
+                    print(img)
                     self.canvas.create_image(x_pos, y_pos, anchor=tk.NW, image=img)
-                    print(key, i, x_pos, y_pos, x_offset, y_offset)
+                    print(f"({x_pos},{y_pos})")
                     y_pos += token_height/10  # Increment y_pos for the next token value
-            x_pos += token_width + 10  # Increment x_pos for each token of the same value
-            x_offset += token_width + 10  # Increment x_offset for the next token value
+
+                print('before', x_pos)
+                x_pos += token_width + 10  # Increment x_pos for each token of the same value
+                x_offset += token_width + 10  # Increment x_offset for the next token value
+                print('after', x_pos)
 
     def deal_initial_cards(self):
         for player in game.players: 
