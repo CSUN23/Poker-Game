@@ -523,6 +523,7 @@ class PokerGameGUI:
             
             self.update_hand_display()
             self.update_bets_and_pot()
+            self.update_tokens_display()
             
             messagebox.showinfo("Game Restarted", "The game has been restarted.")
         else:
@@ -658,8 +659,11 @@ class PokerGameGUI:
         self.player_hand_label.pack()
         self.player_bet_label.pack()
         self.player_money_label.pack()
-        self.player_tokens_frame = tk.Frame(self.root)
-        self.player_tokens_frame.pack()
+        self.player_tokens_frame = tk.Frame(self.root, bg="")
+        self.player_tokens_frame.pack(fill='both', expand=True)
+        self.canvas = tk.Canvas(self.player_tokens_frame, width=400, height=200, bg='systemTransparent')
+        self.canvas.pack()
+        
         self.player_hand_frame = tk.Frame(self.root) #frames to hold card images
         self.player_hand_frame.pack()
         self.community_cards_label.pack()
@@ -722,6 +726,7 @@ class PokerGameGUI:
             self.update_bets_and_pot()
             if self.round!=5:
                 self.update_hand_display()
+                self.update_tokens_display()
         elif self.round==2:
             if self.get_submitted_flag() == 0:
                 self.root.wait_variable(self.submitted_flag)
@@ -731,6 +736,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             self.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
             
         elif self.round==3:
@@ -742,6 +748,7 @@ class PokerGameGUI:
 
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==4:
             if self.get_submitted_flag() == 0:
@@ -752,6 +759,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         elif self.round==5:
             if self.get_submitted_flag() == 0:
@@ -762,6 +770,7 @@ class PokerGameGUI:
             
             game.betting_round(self.raise_amount)
             gui.update_hand_display()
+            self.update_tokens_display()
             self.update_bets_and_pot()
         else:
             gui.end_round()
@@ -843,8 +852,9 @@ class PokerGameGUI:
         return x, y
 
     def update_tokens_display(self):
-        for element in self.player_tokens_frame.winfo_children():
-            element.destroy()
+        self.canvas.delete("all")
+        
+        
 
         total = game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])
 
@@ -871,37 +881,25 @@ class PokerGameGUI:
 
         token_width = 120
         token_height = 120
-        offset_y = 0.7  # Adjust this offset for better stacking effect
+        offset_y = 0.4  # Adjust this offset for better stacking effect
+        start_x = start_y = 200
 
         parent_x, parent_y = self.player_tokens_frame.winfo_rootx(), self.player_tokens_frame.winfo_rooty()
-        x_offset = parent_x - 300  # Adjust this value to position the tokens horizontally
-        y_offset = parent_y + 10  # Adjust this value to position the tokens vertically
+        x_offset = parent_x - 250  # Adjust this value to position the tokens horizontally
+        y_offset = parent_y - 50  # Adjust this value to position the tokens vertically
+
 
         for key, value in money.items():
             y_pos = y_offset
+            x_pos = x_offset
             for i in range(value):
-                img = self.token_images.get(f"{key}")
-                filename = f'{key}.png'  
-                path = os.path.join(os.path.dirname(__file__), 'chips-pics', filename)
-                original_image = Image.open(path)
-                image_with_alpha = original_image.convert("RGBA")
-
-                # Example: Make 50% of the image transparent (adjust as needed)
-                alpha_value = int(0.1 * 255)
-                transparent_image = Image.new("RGBA", image_with_alpha.size, (255, 255, 255, alpha_value))
-                transparent_image.paste(image_with_alpha, (0, 0), image_with_alpha)
-
-                tk_image = ImageTk.PhotoImage(transparent_image)
-                label = tk.Label(self.player_tokens_frame, image=tk_image, bg='systemTransparent',anchor='nw')
-                print(tk_image)
-            
+                img = self.token_images.get(f"{key}")            
                 if img:   
-                    # self.player_tokens_frame.create_image(x_offset, y_pos, anchor='nw', image=img)
-                    label = tk.Label(self.root, image=img, bg='systemTransparent', anchor='nw')
-                    label.image = img
-                    label.place(x=x_offset, y=y_pos)
-                    y_pos += token_height - (offset_y * token_height)
-            x_offset += token_width + 10
+                    self.canvas.create_image(x_pos, y_pos, anchor=tk.NW, image=img)
+                    print(key, i, x_pos, y_pos)
+                y_pos += token_height/10  # Increment y_pos for the next token value
+            x_pos += token_width + 10  # Increment x_pos for each token of the same value
+            x_offset += token_width + 10  # Increment x_offset for the next token value
 
     def deal_initial_cards(self):
         for player in game.players: 
