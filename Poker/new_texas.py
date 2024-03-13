@@ -559,10 +559,10 @@ class PokerGameGUI:
         parent.option_add("*Label.Background", "green")
         parent.option_add("*Label.Foreground", "white")
         parent.option_add("*Frame.Background", "green")
-        parent.option_add("*Button.Background", "green")
-        parent.option_add("*Button.Foreground", "white")
-        parent.option_add("*Checkbutton.Background", "green")
-        parent.option_add("*Checkbutton.Foreground", "white")
+        parent.option_add("*Button.Background", "white")
+        parent.option_add("*Button.Foreground", "green")
+        parent.option_add("*Checkbutton.Background", "white")
+        parent.option_add("*Checkbutton.Foreground", "green")
 
     def restart_game(self):
         
@@ -687,15 +687,6 @@ class PokerGameGUI:
         return token_images
     
     def setup_gui(self):
-        # Create GUI features
-        # self.player_hand_label = tk.Label(self.root, text="")
-        # self.player1_bet_label = tk.Label(self.root,text="")
-        # self.player1_money_label = tk.Label(self.root,text="")
-        # self.community_cards_label = tk.Label(self.root, text="")
-        # self.pot_label = tk.Label(self.root,text="")
-        # self.dealer_hand_label = tk.Label(self.root, text="")
-        # self.player2_bet_label = tk.Label(self.root,text="")
-        # self.player2_money_label = tk.Label(self.root,text="")
         self.result_label = tk.Label(self.root, text="")
         self.add_player_dialog()
         self.player_hand_label = tk.Label(self.root,text="")
@@ -705,7 +696,7 @@ class PokerGameGUI:
         self.community_cards_label = tk.Label(self.root, text="")
         self.pot_label = tk.Label(self.root, text="")
 
-        self.button_frame = tk.Frame(self.root, bg = "green")
+        self.button_frame = tk.Frame(self.root)
         self.fold_button = tk.Button(self.button_frame, text="Fold", command= self.Fold)
         self.raise_button = tk.Button(self.button_frame, text="Raise", command=self.Raise)
         self.call_button = tk.Button(self.button_frame, text="Call", command= self.Call)
