@@ -643,11 +643,11 @@ class PokerGameGUI:
         self.community_cards_label = tk.Label(self.root, text="")
         self.pot_label = tk.Label(self.root, text="")
 
-        
-        self.fold_button = tk.Button(self.root, text="Fold", command= self.Fold)
-        self.raise_button = tk.Button(self.root, text="Raise", command=self.Raise)
-        self.call_button = tk.Button(self.root, text="Call", command= self.Call)
-        self.hold_button = tk.Button(self.root, text="Hold", command= self.Hold)
+        self.button_frame = tk.Frame(self.root, bg = "green")
+        self.fold_button = tk.Button(self.button_frame, text="Fold", command= self.Fold)
+        self.raise_button = tk.Button(self.button_frame, text="Raise", command=self.Raise)
+        self.call_button = tk.Button(self.button_frame, text="Call", command= self.Call)
+        self.hold_button = tk.Button(self.button_frame, text="Hold", command= self.Hold)
         self.hold_button.config(state=tk.DISABLED)
         self.raise_button.config(state=tk.DISABLED)
 
@@ -665,10 +665,11 @@ class PokerGameGUI:
         self.pot_label.pack()
         self.community_frame = tk.Frame(self.root)
         self.community_frame.pack()
-        self.fold_button.pack()
-        self.raise_button.pack()
-        self.call_button.pack()
-        self.hold_button.pack()
+        self.button_frame.pack()
+        self.fold_button.pack(side = tk.LEFT)
+        self.raise_button.pack(side = tk.LEFT)
+        self.call_button.pack(side = tk.LEFT)
+        self.hold_button.pack(side = tk.LEFT)
 
     def get_submitted_flag(self):
         return self.submitted_flag.get()
