@@ -51,8 +51,6 @@ class Deck:
 
         drawn_indices = random.sample(range(len(self._deck)), num_cards)
         drawn_cards = [self._deck.pop(i) for i in sorted(drawn_indices, reverse=True)]
-        print(drawn_indices)
-        print(game.get_active_players())
 
         return drawn_cards
 
@@ -224,11 +222,15 @@ class PokerGame:
                     
                     updated_suits = sorted(suits, key=lambda x: SUITS_RANKING.index(x[0]))
                     original_indice = [i for i, suit in enumerate(suits) if updated_suits[0][0]==suit[0]]
-                    player_name = tied_array[tied_index[original_indice[0]]][0]
+
+                    for i in range(len(tied_array)):
+                        if i not in tied_index:
+                            del tied_array[i]
+                    player_name = (' and '.join(player[0] for player in tied_array))#tied_array[tied_index[original_indice[0]]][0]
                     hand_type =  suits[tied_index[original_indice[0]]][0] #suit[0][0]
                     hand_values = values[tied_index[original_indice[0]]][0] #values[0][0]
                     winner = (player_name, (hand_type, hand_values))
-                    self.get_player_by_name(player_name)['money'] += self.get_pot()
+                    #self.get_player_by_name(player_name)['money'] += self.get_pot()
                     return winner
 
             if len(values) >2:
@@ -311,8 +313,6 @@ class PokerGame:
             elif current_player['decision'] == 'call':
                 self.pot += abs(self.total_raise_amount - current_player['bet'])
                 current_player['money'] -= abs(self.total_raise_amount - current_player['bet'])
-                print(self.total_raise_amount, current_player['bet'])
-                print(max_bet)
                 current_player['bet'] = max_bet
             elif current_player['decision'] == 'raise':
                 self.total_raise_amount += raise_amount  # Update the total raise amount
@@ -367,7 +367,6 @@ class PokerGame:
         big_blind_amount = 20
         self.current_highest_bet = big_blind_amount
 
-        print('here', self.players)
         # Set small blind player (Player1)
         self.players[0]['bet'] = small_blind_amount
         self.current_highest_bet = small_blind_amount
@@ -375,7 +374,6 @@ class PokerGame:
         # Set big blind player (Player2)
         self.players[-1]['bet'] = big_blind_amount
         self.current_highest_bet = big_blind_amount
-        print('there', self.players)
 
         # Display initial pot
         self.pot = small_blind_amount + big_blind_amount
@@ -544,7 +542,6 @@ class PokerGameGUI:
                     break  
                 else:
                     messagebox.showinfo('Invalid number of players. Must be between 2 and 5.','Invalid number of players. Must be between 2 and 9.')
-                print(len(game.get_active_players))
             except:
                 messagebox.showinfo('Invalid input','Invalid input')
 
@@ -613,7 +610,6 @@ class PokerGameGUI:
 
         winner = game.determine_winner()
         self.winner_label.config(text=f'{winner[0]}')
-        print(winner[0], winner[1])
 
         if game.get_tie_flag()==1:
             self.winner_label.config(text=f"Tie between {winner[0]} with {winner[1]}")#place(x=640, y=850) 
@@ -781,7 +777,6 @@ class PokerGameGUI:
                 self.root.wait_variable(self.submitted_flag)
             self.number_entry.destroy()
             self.submit_button.destroy()
-            print(game.current_player_index)
             
             game.betting_round(self.raise_amount)
             self.update_hand_display()
@@ -904,7 +899,6 @@ class PokerGameGUI:
         self.canvas.delete("all")        
 
         total = game.get_money(game.get_player_by_name(game.get_active_players()[game.current_player_index])['name'])
-        print('check here', total)
 
         money = {'1000': 0, '500': 0, '100': 0, '50': 0, '10': 0, '5': 0}
 
@@ -938,21 +932,15 @@ class PokerGameGUI:
             if value!=0:
                 y_pos = y_offset # 0
                 x_pos = x_offset # -260
-                print(x_pos, y_pos)
-                print('val',value) 
                 
                 for i in range(value):
                     img = self.token_images.get(f"{key}")  
                     
-                    print(img)
                     self.canvas.create_image(x_pos, y_pos, anchor=tk.NW, image=img)
-                    print(f"({x_pos},{y_pos})")
                     y_pos += token_height/10  # Increment y_pos for the next token value
 
-                print('before', x_pos)
                 x_pos += token_width + 10  # Increment x_pos for each token of the same value
                 x_offset += token_width + 10  # Increment x_offset for the next token value
-                print('after', x_pos)
 
     def deal_initial_cards(self):
         for player in game.players: 
