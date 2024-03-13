@@ -439,6 +439,21 @@ class PokerGame:
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
             gui.set_round(6)
+class BackgroundFrame(tk.Frame):
+    def __init__(self, master, image_path):
+        super().__init__(master)
+        self.image = Image.open(image_path)
+        self.img_copy = self.image.copy()
+        self.background_image = ImageTk.PhotoImage(self.image)
+        self.background_label = tk.Label(self, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.background_label.bind('<Configure>', self.resize_image)
+
+    def resize_image(self, event):
+        new_width, new_height = event.width, event.height
+        self.image = self.img_copy.resize((new_width, new_height))
+        self.background_image = ImageTk.PhotoImage(self.image)
+        self.background_label.configure(image=self.background_image)
 
 class PokerGameGUI:
     SUIT_MAPPING = {
@@ -452,11 +467,40 @@ class PokerGameGUI:
         self.root = tk.Tk()
         self.root.title('Poker Game')
         self.root.geometry("1200x1200")
+
+        # Create a transparent style for other widgets
+        self.set_transparent_options(self.root)
+        # bgimg = tk.PhotoImage(file=os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
+        # limg = tk.Label(self.root, image=bgimg)
+        # limg.pack()
+
+        #Load the background image
+        # bg_image = Image.open(os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
+        # bg_photo = ImageTk.PhotoImage(bg_image)
+
+        # # Create a canvas and set the background image
+        # self.canvas = tk.Canvas(self.root, width=1200, height=1200)
+        # self.canvas.pack(fill="both", expand=True)
+        # self.canvas.create_image(0, 0, image=bg_photo, anchor="nw")
+
+        # Create the background frame
+        # bg_frame = BackgroundFrame(self.root, os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
+        # bg_frame.pack(fill="both", expand=True)
+
+        # Load the background image
+        # bg_image = Image.open(os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
+        # self.bg_photo = ImageTk.PhotoImage(bg_image)
+
+        # Set the background image on the root window
+        self.root.configure(background='green')  # Set a temporary background color
+        # self.bg_label = tk.Label(self.root, image=self.bg_photo)
+        # self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
         self.raise_amount = 0
         self.round = 1
         self.action = ""
         self.winner_label = tk.Label(self.root)
-        self.player_turn_label = tk.Label(self.root,text="") 
+        self.player_turn_label = tk.Label(self.root,text="", bg='green') 
         self.player_turn_label.pack()
         
         # Initialize the Entry and Button widgets
@@ -474,6 +518,9 @@ class PokerGameGUI:
         self.token_images = self.load_token_images()
         
         self.setup_gui()
+
+        
+
         self.winner_label.pack()
         self.game.first_bet()
         self.update_bets_and_pot()
@@ -501,6 +548,21 @@ class PokerGameGUI:
             except:
                 messagebox.showinfo('Invalid input','Invalid input')
 
+    def create_transparent_style(self, parent):
+        transparent_style = tk.Style()
+        transparent_style.configure("Transparent.TLabel", background="green", foreground="white")
+        transparent_style.configure("Transparent.TFrame", background="green")
+        transparent_style.configure("Transparent.TButton", background="green", foreground="white")
+        transparent_style.configure("Transparent.TCheckbutton", background="green", foreground="white")
+        return transparent_style
+    def set_transparent_options(self, parent):
+        parent.option_add("*Label.Background", "green")
+        parent.option_add("*Label.Foreground", "white")
+        parent.option_add("*Frame.Background", "green")
+        parent.option_add("*Button.Background", "green")
+        parent.option_add("*Button.Foreground", "white")
+        parent.option_add("*Checkbutton.Background", "green")
+        parent.option_add("*Checkbutton.Foreground", "white")
 
     def restart_game(self):
         
@@ -654,9 +716,9 @@ class PokerGameGUI:
         self.player_hand_label.pack()
         self.player_bet_label.pack()
         self.player_money_label.pack()
-        self.player_tokens_frame = tk.Frame(self.root, bg="")
+        self.player_tokens_frame = tk.Frame(self.root, bg="green")
         self.player_tokens_frame.pack(fill='both', expand=True)
-        self.canvas = tk.Canvas(self.player_tokens_frame, width=400, height=150)
+        self.canvas = tk.Canvas(self.player_tokens_frame, width=400, height=150, bg='green')
         self.canvas.pack()
         
         self.player_hand_frame = tk.Frame(self.root) #frames to hold card images
