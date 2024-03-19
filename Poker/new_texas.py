@@ -345,9 +345,10 @@ class PokerGame:
             if self.current_player_index+1 == len(active_players):
                 self.current_player_index = 0
                 break
-            
-            self.increment_current_player_index()  
-            break
+            #change
+            if current_player['decision']!='fold':
+                self.increment_current_player_index()  
+                break
 
         active_players = [player for player in active_players if player['money'] > 0 and player['decision']!='fold']  # Filter out players with no money
 
