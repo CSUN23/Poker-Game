@@ -705,7 +705,7 @@ class PokerGameGUI:
         self.player_money_label.pack()
         self.player_tokens_frame = tk.Frame(self.root, bg="green")
         self.player_tokens_frame.pack(fill='both', expand=True)
-        self.canvas = tk.Canvas(self.player_tokens_frame, width=400, height=150, bg='green')
+        self.canvas = tk.Canvas(self.player_tokens_frame, width=800, height=150, bg='green')
         self.canvas.pack()
         
         self.player_hand_frame = tk.Frame(self.root) #frames to hold card images
@@ -924,14 +924,23 @@ class PokerGameGUI:
         token_width = 120
         token_height = 120
 
+        
+        count = 0
+        for key, value in money.items(): 
+            if value != 0: 
+                count += 1
+                
         parent_x = parent_y = 0
-        x_offset = parent_x # Adjust this value to position the tokens horizontally
-        y_offset = parent_y - 0  # Adjust this value to position the tokens vertically
+        x_offset = 400 - 120*count/2# Adjust this value to position the tokens horizontally
+        y_offset = parent_y # Adjust this value to position the tokens vertically
 
         for key, value in money.items():
-            if value!=0:
+            if value != 0: 
                 y_pos = y_offset # 0
                 x_pos = x_offset # -260
+                
+                # x_pos = 400 - 120*count/2
+                print(key, value, x_pos)
                 
                 for i in range(value):
                     img = self.token_images.get(f"{key}")  
