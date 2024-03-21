@@ -353,6 +353,7 @@ class PokerGame:
                 self.increment_current_player_index()
             break
 
+        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
         if len(self.active_players)==1:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
@@ -362,7 +363,6 @@ class PokerGame:
             self.current_player_index = 0
             gui.restart_game()
 
-        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
             
     def first_bet(self):
