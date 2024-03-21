@@ -487,7 +487,7 @@ class PokerGameGUI:
         self.round = 1
         self.action = ""
         self.winner_label = tk.Label(self.root)
-        self.title_label = tk.Label(self.root, text="Epic Python Game", font=tkFont.Font(family="Math Sans", size=20, weight="bold", slant="roman"), padx=10, pady=10)
+        self.title_label = tk.Label(self.root, text="Epic Poker Game", font=tkFont.Font(family="Math Sans", size=20, weight="bold", slant="roman"), padx=10, pady=10)
         self.title_label.pack()
         self.player_turn_label = tk.Label(self.root,text="", bg='green') 
         self.player_turn_label.pack()
@@ -554,11 +554,15 @@ class PokerGameGUI:
         
         result = messagebox.askyesno("Restart Game", "Do you want to restart the game?")
         if result:
+            
             self.set_round(1)
             game.community_cards = []
             game.deck = Deck()
             
             self.deal_initial_cards()
+            game.active_players = game.players 
+            for player in game.active_players:
+                player['decision'] = ''
             self.call_button.config(state=tk.NORMAL)
             self.fold_button.config(state=tk.NORMAL)
             self.winner_label.config(text="")
