@@ -296,7 +296,7 @@ class PokerGame:
     # game and betting logic for before dealing 3 community cards
     def decision_cycle(self, raise_amount):
 
-        active_players = [player for player in self.players if player['money'] > 0]  # Filter out players with no money
+        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
         gui.set_submitted_flag(0)
 
         while len(active_players) >= 2:
@@ -343,23 +343,26 @@ class PokerGame:
             #     for player in active_players:
             #         player['bet'] = 0
  
+
             if self.current_player_index+1 == len(active_players):
                 self.current_player_index = 0
                 break
             
-            self.increment_current_player_index()  
+            if current_player['decision']!='fold':
+                self.increment_current_player_index()
             break
 
-        active_players = [player for player in active_players if player['money'] > 0 and player['decision']!='fold']  # Filter out players with no money
+        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
         if len(active_players)==1:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
-            gui.set_round(6)
+            gui.end_round()
+            game.get_player_by_name(game.get_active_players()[game.current_player_index])['decision'] = None
+            self.current_player_index = 0
+            gui.restart_game()
             
-
-
     def first_bet(self):
         # Input small blind amount
         small_blind_amount = 10
@@ -384,13 +387,14 @@ class PokerGame:
 
     # game and betting logic for after community cards are distributed
     def betting_round(self, raise_amount):
-        active_players = [player for player in self.players if player['money'] > 0]  # Filter out players with no money
+        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
         gui.set_submitted_flag(0)
 
         while len(active_players) >= 2:
 
-            current_player = active_players[self.current_player_index]  
+            current_player = active_players[self.current_player_index]
+            print(self.current_player_index)
             max_bet = max(player['bet'] for player in active_players)
             current_player['decision'], current_player['bet'] = self.get_player_decision()
             print(current_player['name'], current_player['decision'])
@@ -428,16 +432,22 @@ class PokerGame:
             if self.current_player_index+1 == len(active_players):
                 self.current_player_index = 0
                 break
-            self.increment_current_player_index() 
+
+            if current_player['decision']!='fold':
+                self.increment_current_player_index()
             break
 
-        active_players = [player for player in self.players if player['money'] > 0 and player['decision']!='fold']  # Filter out players with no money
+        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
         if len(active_players)==1:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
-            gui.set_round(6)
+            gui.end_round()
+            game.get_player_by_name(game.get_active_players()[game.current_player_index])['decision'] = None
+            self.current_player_index = 0
+            gui.restart_game()
+
 class BackgroundFrame(tk.Frame):
     def __init__(self, master, image_path):
         super().__init__(master)
