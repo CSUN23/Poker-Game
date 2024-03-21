@@ -75,12 +75,13 @@ class PokerGame:
         self.small_blind_player = 'Player1'
         self.total_raise_amount = 20
         self.tie_flag = 0
+        self.active_players = self.players
 
     def add_player(self, player_name):
         self.players.append({'name': player_name, 'hand': [], 'money': 500, 'decision': None, 'bet': 0})
     
     def get_active_players(self):
-        return [player['name'] for player in self.players if player['money'] > 0 and player['decision']!='fold']
+        return [player['name'] for player in self.active_players if player['money'] > 0 and player['decision']!='fold']
     
     def get_money(self, player_name):
         for player in self.players:
@@ -295,11 +296,11 @@ class PokerGame:
     # game and betting logic for before dealing 3 community cards
     def decision_cycle(self, raise_amount):
 
-        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
+        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
         gui.set_submitted_flag(0)
 
-        while len(active_players) >= 2:
-            current_player = self.players[self.current_player_index]  
+        while len(self.active_players) >= 2:
+            current_player = self.active_players[self.current_player_index]  
             max_bet = max(player['bet'] for player in self.players)
 
             print(f"{current_player['name']}'s hand: {current_player['hand']}")
@@ -327,14 +328,14 @@ class PokerGame:
                 # current_player['money']-=current_player['bet']
                 pass
                            
-            max_bet = max(player['bet'] for player in active_players)
-            if all(player['bet'] == max_bet for player in active_players) and self.get_index()+1==len(active_players):
+            max_bet = max(player['bet'] for player in self.active_players)
+            if all(player['bet'] == max_bet for player in self.active_players) and self.get_index()+1==len(self.active_players):
                 gui.increment_round()
                 gui.set_submitted_flag(0)
                 self.deal_community_cards(3)
                 self.current_player_index = 0
                 self.total_raise_amount = 0
-                for player in active_players:
+                for player in self.active_players:
                     player['bet'] = 0
                 break
             
@@ -343,7 +344,7 @@ class PokerGame:
             #         player['bet'] = 0
  
 
-            if self.current_player_index+1 == len(active_players):
+            if self.current_player_index+1 == len(self.active_players):
                 self.current_player_index = 0
                 break
             
@@ -351,9 +352,7 @@ class PokerGame:
                 self.increment_current_player_index()
             break
 
-        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
-
-        if len(active_players)==1:
+        if len(self.active_players)==1:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
@@ -361,6 +360,9 @@ class PokerGame:
             game.get_player_by_name(game.get_active_players()[game.current_player_index])['decision'] = None
             self.current_player_index = 0
             gui.restart_game()
+
+        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
+
             
     def first_bet(self):
         # Input small blind amount
@@ -386,15 +388,15 @@ class PokerGame:
 
     # game and betting logic for after community cards are distributed
     def betting_round(self, raise_amount):
-        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
+        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
         gui.set_submitted_flag(0)
 
-        while len(active_players) >= 2:
+        while len(self.active_players) >= 2:
 
-            current_player = active_players[self.current_player_index]
+            current_player = self.active_players[self.current_player_index]
             print(self.current_player_index)
-            max_bet = max(player['bet'] for player in active_players)
+            max_bet = max(player['bet'] for player in self.active_players)
             current_player['decision'], current_player['bet'] = self.get_player_decision()
             print(current_player['name'], current_player['decision'])
 
@@ -413,8 +415,8 @@ class PokerGame:
             elif current_player['decision'] == 'hold':
                 current_player['money']-=current_player['bet']
                
-            max_bet = max(player['bet'] for player in active_players)
-            if all(player['bet'] == max_bet for player in active_players) and self.get_index()+1==len(active_players):
+            max_bet = max(player['bet'] for player in self.active_players)
+            if all(player['bet'] == max_bet for player in self.active_players) and self.get_index()+1==len(self.active_players):
                 gui.increment_round()
                 gui.set_submitted_flag(0)
                 if gui.get_round()==5:
@@ -424,11 +426,11 @@ class PokerGame:
                     gui.update_community_cards_display()
                     self.current_player_index = 0
                     self.total_raise_amount = 0
-                    for player in active_players:
+                    for player in self.active_players:
                         player['bet'] = 0
                 break
  
-            if self.current_player_index+1 == len(active_players):
+            if self.current_player_index+1 == len(self.active_players):
                 self.current_player_index = 0
                 break
 
@@ -436,9 +438,9 @@ class PokerGame:
                 self.increment_current_player_index()
             break
 
-        active_players = [player for player in self.players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
+        self.active_players = [player for player in self.active_players if player['money'] > 0 and player['decision'] != 'fold']  # Filter out players with no money
 
-        if len(active_players)==1:
+        if len(self.active_players)==1:
             for i in range(5-len(self.community_cards)):
                 self.deal_community_cards(1)
             gui.update_community_cards_display()
