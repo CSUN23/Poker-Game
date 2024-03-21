@@ -5,6 +5,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from tkinter import simpledialog
 import os
+import tkinter.font as tkFont
 
 class Card:
     ACE, JACK, QUEEN, KING = 'A', 'J', 'Q', 'K'
@@ -480,36 +481,14 @@ class PokerGameGUI:
 
         # Create a transparent style for other widgets
         self.set_transparent_options(self.root)
-        # bgimg = tk.PhotoImage(file=os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
-        # limg = tk.Label(self.root, image=bgimg)
-        # limg.pack()
-
-        #Load the background image
-        # bg_image = Image.open(os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
-        # bg_photo = ImageTk.PhotoImage(bg_image)
-
-        # # Create a canvas and set the background image
-        # self.canvas = tk.Canvas(self.root, width=1200, height=1200)
-        # self.canvas.pack(fill="both", expand=True)
-        # self.canvas.create_image(0, 0, image=bg_photo, anchor="nw")
-
-        # Create the background frame
-        # bg_frame = BackgroundFrame(self.root, os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
-        # bg_frame.pack(fill="both", expand=True)
-
-        # Load the background image
-        # bg_image = Image.open(os.path.join(os.path.dirname(__file__), 'images', 'background.jpeg'))
-        # self.bg_photo = ImageTk.PhotoImage(bg_image)
-
-        # Set the background image on the root window
         self.root.configure(background='green')  # Set a temporary background color
-        # self.bg_label = tk.Label(self.root, image=self.bg_photo)
-        # self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.raise_amount = 0
         self.round = 1
         self.action = ""
         self.winner_label = tk.Label(self.root)
+        self.title_label = tk.Label(self.root, text="Epic Python Game", font=tkFont.Font(family="Math Sans", size=20, weight="bold", slant="roman"), padx=10, pady=10)
+        self.title_label.pack()
         self.player_turn_label = tk.Label(self.root,text="", bg='green') 
         self.player_turn_label.pack()
         
@@ -528,9 +507,7 @@ class PokerGameGUI:
         self.token_images = self.load_token_images()
         
         self.setup_gui()
-
         
-
         self.winner_label.pack()
         self.game.first_bet()
         self.update_bets_and_pot()
